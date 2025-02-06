@@ -213,3 +213,19 @@ body {
     height: 100%;
     width: 100%;
 }
+
+.loading {
+    animation-name: loading;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    background-color: transparent;
+    border: 3px solid black;
+    border-top: 3px solid rgb(141, 141, 141);
+    border-radius: 50%;
+}
+
+.loading-father {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

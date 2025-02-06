@@ -14,7 +14,11 @@ Route::get('/chat', [ChatController::class, 'render'])
     ->name('dashboard');
 
 
-Route::get('/heartbeat', [ChatController::class, 'heartbeat'])
-    ->name('heartbeat')
-    ->middleware(['auth', 'verified']);
+Route::middleware(['auth', 'verified'])->group(
+    function () {
+        Route::get('/heartbeat', [ChatController::class, 'heartbeat'])->name('heartbeat');
+        Route::post('/api/friends', [ChatController::class, 'friendsAPI'])->name('api.friends.getter');
+    }
+);
+
 require __DIR__.'/auth.php';

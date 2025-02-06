@@ -104,8 +104,10 @@ class User extends Authenticatable
     }
 
     /** @return User[] */
-    public function getFriendUsers() : array 
+    public function getFriendUsers(int $start = 0, int $limit = 20) : array 
     {
+        $friends = $this->friends;
+        $friends = array_slice($friends, $start, $limit);
         return array_filter(
             array_map(
                 fn (int | string $id) : User => User::find($id),
@@ -167,6 +169,50 @@ class User extends Authenticatable
     {
         $this->heartbeat = microtime(true);
         $this->save();
+    }
+
+    /** @return Message[] */
+    public function getFriendMessages(User $with, int $start, int $limit) : array 
+    {
+        return Message::getMessagesFrom($with, $this, $start, $limit);
+    }
+
+    /** @return Message[] */
+    public function getUnreadMessages(int $skip, int $max) : array 
+    {
+        return Message::getUnreadMessages(
+            $this,
+            $skip,
+            $max
+        );
+    }
+
+    public function getUnreadCount() : int 
+    {
+        return Message::getUnreadMessagesCount($this);
+    }
+
+    public function serializeUserInfoAPI() : array 
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'lastheartbeat' => $this->heartbeat,
+            'isOnline' => $this->isOnline(),
+            'perfil_image' => $this->getPerfilImage()
+        ];
+    }
+
+    public function getFriendsSerialized(int $skip, int $limit) : array {
+        $friends = $this->getFriendUsers($skip, $limit);
+        return array_map(
+            function (User $user) : array {
+                return [
+                    'user' => $user->serializeUserInfoAPI(),
+                    'messages' => $user->getFriendMessages($this, 0, 20)
+                ];
+            }, $friends
+        );
     }
 
 }
